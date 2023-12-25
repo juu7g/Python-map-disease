@@ -58,7 +58,7 @@
 
 ## プログラムの説明サイト Program description site
 
-- 準備中：[新型コロナとインフルエンザの流行を知る - プログラムでおかえしできるかな](https://juu7g.hatenablog.com/entry/Python/map/COVID-19-exe)  
+- [foliumのChoroplethで色分け地図を作成【Python】 - プログラムでおかえしできるかな](https://juu7g.hatenablog.com/entry/Python/map/COVID-19)  
   
 ## 作者 Authors
 juu7g
