@@ -50,7 +50,7 @@ class Mapping():
             if res.url != _url:
                 msg = "指定した日付の週にデータがありません"
                 return None, None, None, None, None, None, msg
-            # 5行読み飛ばす
+            # ヘッダに対する処理
             next(res)   # 1行目
             title = next(res).decode('cp932').split(',')[0].replace('"', '')   # 2行目 報告期間
             shippei = next(res).decode('cp932').split(',')  # 3行目 疾病
@@ -92,22 +92,13 @@ class Mapping():
         _url = "https://raw.githubusercontent.com/smartnews-smri/japan-topography/main/data/municipality/topojson/s0010/prefectures.json"  # 全国都道府県 
         topo_json_data = requests.get(_url).json()
 
-        # TopoJSONの地域データに定当データを追加(ツールチップに表示するため)
-        teito = dict(rows)
-        # TopoJSONのここに都道府県のデータがあるのでそこのpropertisに要素追加
-        for d in topo_json_data["objects"]["prefectures"]["geometries"]:
-            # "properties"の辞書に定当のキーと値を追加(都道府県名をキーにして定当を取得)
-            try:    # 都道府県で回しているのでデータがないことがある
-                d["properties"]["teito"] = teito[d["properties"]["N03_001"]]
-            except KeyError:
-                pass    # 定当のデータがない場合追加しない
         # MapオブジェクトにTopoJSONデータを追加
         folium.TopoJson(topo_json_data, "objects.prefectures").add_to(map)
 
         # Choroplethの作成
         cp = folium.Choropleth(geo_data=topo_json_data
-                                , topojson='objects.prefectures'        # GeoJSONへ変換するデータの位置
-                                , data=teito                            # 地域区分するデータ
+                                , topojson='objects.prefectures'  # GeoJSONへ変換するデータの位置
+                                , data=rows                            # 地域区分するデータ
                                 , key_on='properties.N03_001'           # 地域を特定するキー
                                 , bins=range(0, int(max_value + 2), 1)  # カラーマップ
                                 , fill_color='PuRd'                     # カラーマップの色
@@ -116,6 +107,15 @@ class Mapping():
                                 )
         cp.add_to(map)          # Mapオブジェクトに追加
 
+        # TopoJSONの地域データに定当データを追加(ツールチップに表示するため)
+        # TopoJSONのgeometriesに都道府県のデータがあるのでそこのpropertisに要素追加
+        teito = dict(rows)  # リストを辞書化
+        for d in topo_json_data["objects"]["prefectures"]["geometries"]:
+            # "properties"の辞書に定当のキーと値を追加(都道府県名をキーにして定当を取得)
+            try:    # 都道府県で回しているのでデータがないことがある
+                d["properties"]["teito"] = teito[d["properties"]["N03_001"]]
+            except KeyError:
+                pass    # 定当のデータがない場合追加しない
         # ツールチップの追加
         folium.GeoJsonTooltip(['N03_001', 'teito'], ['地域', '人数']).add_to(cp.geojson)
         # カラーマップの幅を指定(地図を並べて表示した時に長くなるため)
