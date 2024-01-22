@@ -40,7 +40,7 @@ class Mapping():
         msg =""
         # today = datetime(2023, 10, 16)
         year = today.strftime('%Y')
-        week = today.strftime('%U')
+        week = today.strftime('%V')
         # csvファイルのurl
         _url = f'https://www.niid.go.jp/niid/images/idwr/sokuho/idwr-{year}/{year}{week}/{year}-{week}-teiten.csv'
         # csvファイルの取得
@@ -49,7 +49,7 @@ class Mapping():
             print(f'return  url:{res.url}')
             if res.url != _url:
                 msg = "指定した日付の週にデータがありません"
-                return None, None, None, None, None, None, msg
+                return None, None, None, None, None, msg
             # ヘッダに対する処理
             next(res)   # 1行目
             title = next(res).decode('cp932').split(',')[0].replace('"', '')   # 2行目 報告期間
@@ -231,7 +231,7 @@ class MyFrame(tk.Frame):
         self.tkcal = DateEntry(self, year=latest_date.year, month=latest_date.month, day=latest_date.day, date_pattern='y/m/d', locale='ja_JP')
         self.tkcal.pack()
         # 作成ボタン
-        btn_exe = tk.Button(self, text='地図作成', command=self.create_map)
+        btn_exe = tk.Button(self, text='地図作成', command=self.map_btn_clicked)
         btn_exe.pack()
         # チェックボックス(最大値)
         self.var_fix_max = tk.BooleanVar(self, True)
@@ -258,7 +258,7 @@ class MyFrame(tk.Frame):
         """
         self.ctrl = ctrl
     
-    def create_map(self):
+    def map_btn_clicked(self):
         """
         地図作成(カレンダーから日付を取得して地図を作成)
         """
@@ -278,6 +278,8 @@ class App(tk.Tk):
         """
         super().__init__()
 
+        # import my_icon                                          # アイコン
+        # self.iconphoto(True, my_icon.get_photo_image4icon())    # アイコン
         self.title("定点把握疾患")              # タイトル
         my_frame = MyFrame(self)                    # MyFrameクラス(V)のインスタンス作成
         my_frame.pack()
